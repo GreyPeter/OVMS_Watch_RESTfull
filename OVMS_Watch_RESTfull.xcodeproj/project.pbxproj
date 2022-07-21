@@ -113,8 +113,8 @@
 		D01BD9F0288908C1001547AD /* OVMS_Watch_RESTfull WatchKit Extension */ = {
 			isa = PBXGroup;
 			children = (
-				D01BD9F1288908C1001547AD /* ContentView.swift */,
 				D01BD9F3288908C1001547AD /* OVMS_Watch_RESTfullApp.swift */,
+				D01BDA0A28890962001547AD /* Views */,
 				D01BD9F5288908C1001547AD /* ComplicationController.swift */,
 				D01BD9F7288908C3001547AD /* Assets.xcassets */,
 				D01BD9FC288908C3001547AD /* Info.plist */,
@@ -129,6 +129,14 @@
 				D01BD9FA288908C3001547AD /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		D01BDA0A28890962001547AD /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				D01BD9F1288908C1001547AD /* ContentView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
