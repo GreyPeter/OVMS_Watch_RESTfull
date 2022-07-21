@@ -15,6 +15,13 @@
 		D01BD9F6288908C1001547AD /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01BD9F5288908C1001547AD /* ComplicationController.swift */; };
 		D01BD9F8288908C3001547AD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D01BD9F7288908C3001547AD /* Assets.xcassets */; };
 		D01BD9FB288908C3001547AD /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D01BD9FA288908C3001547AD /* Preview Assets.xcassets */; };
+		D01BDA0E28890B6F001547AD /* ServerData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01BDA0D28890B6F001547AD /* ServerData.swift */; };
+		D01BDA1028890B9B001547AD /* VehicleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01BDA0F28890B9B001547AD /* VehicleData.swift */; };
+		D01BDA1228890BBA001547AD /* ChargeData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01BDA1128890BBA001547AD /* ChargeData.swift */; };
+		D01BDA1428890BD2001547AD /* TokenData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01BDA1328890BD2001547AD /* TokenData.swift */; };
+		D01BDA1628890BFA001547AD /* StatusData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01BDA1528890BFA001547AD /* StatusData.swift */; };
+		D01BDA1828890C17001547AD /* LocationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01BDA1728890C17001547AD /* LocationData.swift */; };
+		D01BDA1A28890C63001547AD /* KeychainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01BDA1928890C63001547AD /* KeychainService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +77,13 @@
 		D01BD9F7288908C3001547AD /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D01BD9FA288908C3001547AD /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		D01BD9FC288908C3001547AD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D01BDA0D28890B6F001547AD /* ServerData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerData.swift; sourceTree = "<group>"; };
+		D01BDA0F28890B9B001547AD /* VehicleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VehicleData.swift; sourceTree = "<group>"; };
+		D01BDA1128890BBA001547AD /* ChargeData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChargeData.swift; sourceTree = "<group>"; };
+		D01BDA1328890BD2001547AD /* TokenData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenData.swift; sourceTree = "<group>"; };
+		D01BDA1528890BFA001547AD /* StatusData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusData.swift; sourceTree = "<group>"; };
+		D01BDA1728890C17001547AD /* LocationData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationData.swift; sourceTree = "<group>"; };
+		D01BDA1928890C63001547AD /* KeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,6 +129,8 @@
 			children = (
 				D01BD9F3288908C1001547AD /* OVMS_Watch_RESTfullApp.swift */,
 				D01BDA0A28890962001547AD /* Views */,
+				D01BDA0B28890B2B001547AD /* Models */,
+				D01BDA0C28890B40001547AD /* Helpers */,
 				D01BD9F5288908C1001547AD /* ComplicationController.swift */,
 				D01BD9F7288908C3001547AD /* Assets.xcassets */,
 				D01BD9FC288908C3001547AD /* Info.plist */,
@@ -137,6 +153,27 @@
 				D01BD9F1288908C1001547AD /* ContentView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		D01BDA0B28890B2B001547AD /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				D01BDA0D28890B6F001547AD /* ServerData.swift */,
+				D01BDA0F28890B9B001547AD /* VehicleData.swift */,
+				D01BDA1128890BBA001547AD /* ChargeData.swift */,
+				D01BDA1328890BD2001547AD /* TokenData.swift */,
+				D01BDA1528890BFA001547AD /* StatusData.swift */,
+				D01BDA1728890C17001547AD /* LocationData.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		D01BDA0C28890B40001547AD /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				D01BDA1928890C63001547AD /* KeychainService.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -266,9 +303,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D01BDA1828890C17001547AD /* LocationData.swift in Sources */,
+				D01BDA0E28890B6F001547AD /* ServerData.swift in Sources */,
+				D01BDA1628890BFA001547AD /* StatusData.swift in Sources */,
+				D01BDA1A28890C63001547AD /* KeychainService.swift in Sources */,
 				D01BD9F2288908C1001547AD /* ContentView.swift in Sources */,
 				D01BD9F4288908C1001547AD /* OVMS_Watch_RESTfullApp.swift in Sources */,
 				D01BD9F6288908C1001547AD /* ComplicationController.swift in Sources */,
+				D01BDA1428890BD2001547AD /* TokenData.swift in Sources */,
+				D01BDA1028890B9B001547AD /* VehicleData.swift in Sources */,
+				D01BDA1228890BBA001547AD /* ChargeData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
