@@ -12,6 +12,15 @@ struct ContentView: View {
     var body: some View {
         GeometryReader { watchGeo in
             VStack {
+                NavigationLink(
+                    destination: Vehicles(model: model, vehicles: vehicles),
+                    label: {
+                            Image(systemName: "car")
+                            Text(vehicles[0].id)
+                                .font(.caption2)
+                    })
+                .frame(width: watchGeo.size.width * 0.79, height: watchGeo.size.height * 0.14)
+                .padding()
                 Image("battery_000")
                     .resizable()
                     .scaledToFit()
