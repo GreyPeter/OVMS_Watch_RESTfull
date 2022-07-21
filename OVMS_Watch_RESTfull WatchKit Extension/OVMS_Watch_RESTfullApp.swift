@@ -9,10 +9,11 @@ import SwiftUI
 
 @main
 struct OVMS_Watch_RESTfullApp: App {
+    @StateObject private var model = ServerData.shared
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                ContentView()
+                ContentView(model: model)
             }
         }
     }
