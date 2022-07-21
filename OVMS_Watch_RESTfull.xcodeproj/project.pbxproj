@@ -27,6 +27,7 @@
 		D01BDA2028890F4D001547AD /* Vehicles.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01BDA1F28890F4D001547AD /* Vehicles.swift */; };
 		D01BDA2228890F94001547AD /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01BDA2128890F94001547AD /* Settings.swift */; };
 		D01BDA24288912E4001547AD /* SubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01BDA23288912E4001547AD /* SubView.swift */; };
+		D0BA76D9288920AC009E51D2 /* ComplicationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0BA76D8288920AC009E51D2 /* ComplicationsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -94,6 +95,7 @@
 		D01BDA1F28890F4D001547AD /* Vehicles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Vehicles.swift; sourceTree = "<group>"; };
 		D01BDA2128890F94001547AD /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 		D01BDA23288912E4001547AD /* SubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubView.swift; sourceTree = "<group>"; };
+		D0BA76D8288920AC009E51D2 /* ComplicationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplicationsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -142,6 +144,7 @@
 				D01BDA0B28890B2B001547AD /* Models */,
 				D01BDA0C28890B40001547AD /* Helpers */,
 				D01BD9F5288908C1001547AD /* ComplicationController.swift */,
+				D0BA76D8288920AC009E51D2 /* ComplicationsView.swift */,
 				D01BD9F7288908C3001547AD /* Assets.xcassets */,
 				D01BD9FC288908C3001547AD /* Info.plist */,
 				D01BD9F9288908C3001547AD /* Preview Content */,
@@ -320,6 +323,7 @@
 			files = (
 				D01BDA1828890C17001547AD /* LocationData.swift in Sources */,
 				D01BDA0E28890B6F001547AD /* ServerData.swift in Sources */,
+				D0BA76D9288920AC009E51D2 /* ComplicationsView.swift in Sources */,
 				D01BDA1628890BFA001547AD /* StatusData.swift in Sources */,
 				D01BDA1A28890C63001547AD /* KeychainService.swift in Sources */,
 				D01BDA2228890F94001547AD /* Settings.swift in Sources */,
