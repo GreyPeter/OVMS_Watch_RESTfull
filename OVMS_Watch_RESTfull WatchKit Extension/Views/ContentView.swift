@@ -23,6 +23,18 @@ struct ContentView: View {
                     })
                 .frame(width: watchGeo.size.width * 0.79, height: watchGeo.size.height * 0.14)
                 .padding()
+                .task {
+                    await currentToken.getToken()
+                    await model.getVehicle()
+                    model.charge = await model.charge.getCharge()
+                    model.chargePercent = Double(model.charge.soc) ?? 0.0
+                    print("Charge % = \(model.chargePercent)")
+                    if model.charge.charging == 0 {
+                        model.mode = model.charge.caron == 0 ? .idle : .driving
+                    } else {
+                        model.mode = .charging
+                    }
+                }
                 Image("battery_000")
                     .resizable()
                     .scaledToFit()

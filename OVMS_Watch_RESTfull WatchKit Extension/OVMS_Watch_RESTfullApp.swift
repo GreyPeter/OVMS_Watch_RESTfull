@@ -15,6 +15,17 @@ struct OVMS_Watch_RESTfullApp: App {
             NavigationView {
                 ContentView(model: model)
             }
+            .onAppear {
+                let defaults = UserDefaults.standard
+                if userName == "" {
+                    if let user = defaults.string(forKey: "username") {
+                        userName = user
+                        print("(WatchApp) Username = \(userName)")
+                    } else {
+                        print("(WatchApp) Error - Username not set")
+                    }
+                }
+            }
         }
     }
 }
