@@ -26,6 +26,7 @@
 		D01BDA1E28890E67001547AD /* ProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01BDA1D28890E67001547AD /* ProgressBar.swift */; };
 		D01BDA2028890F4D001547AD /* Vehicles.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01BDA1F28890F4D001547AD /* Vehicles.swift */; };
 		D01BDA2228890F94001547AD /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01BDA2128890F94001547AD /* Settings.swift */; };
+		D01BDA24288912E4001547AD /* SubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D01BDA23288912E4001547AD /* SubView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -92,6 +93,7 @@
 		D01BDA1D28890E67001547AD /* ProgressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressBar.swift; sourceTree = "<group>"; };
 		D01BDA1F28890F4D001547AD /* Vehicles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Vehicles.swift; sourceTree = "<group>"; };
 		D01BDA2128890F94001547AD /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
+		D01BDA23288912E4001547AD /* SubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -162,6 +164,7 @@
 				D01BDA1D28890E67001547AD /* ProgressBar.swift */,
 				D01BDA1F28890F4D001547AD /* Vehicles.swift */,
 				D01BDA2128890F94001547AD /* Settings.swift */,
+				D01BDA23288912E4001547AD /* SubView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -324,6 +327,7 @@
 				D01BD9F4288908C1001547AD /* OVMS_Watch_RESTfullApp.swift in Sources */,
 				D01BD9F6288908C1001547AD /* ComplicationController.swift in Sources */,
 				D01BDA1428890BD2001547AD /* TokenData.swift in Sources */,
+				D01BDA24288912E4001547AD /* SubView.swift in Sources */,
 				D01BDA1028890B9B001547AD /* VehicleData.swift in Sources */,
 				D01BDA1C28890CF8001547AD /* TimeConvert.swift in Sources */,
 				D01BDA1E28890E67001547AD /* ProgressBar.swift in Sources */,
