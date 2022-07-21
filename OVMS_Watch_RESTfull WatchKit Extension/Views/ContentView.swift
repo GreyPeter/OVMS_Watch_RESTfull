@@ -34,6 +34,7 @@ struct ContentView: View {
                     } else {
                         model.mode = .charging
                     }
+                    model.startBackgroundDownload(refreshInterval: 0)
                 }
                 Image("battery_000")
                     .resizable()
