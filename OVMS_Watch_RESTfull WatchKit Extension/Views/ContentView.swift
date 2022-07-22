@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject var model: ServerData
+    @Environment(\.scenePhase) var scenePhase
     var body: some View {
         let duration = Int(model.charge.chargeduration) ?? 0
         let chgkwh =  (Float(model.charge.chargekwh) ?? 0.0)
@@ -17,9 +18,9 @@ struct ContentView: View {
                 NavigationLink(
                     destination: Vehicles(model: model, vehicles: vehicles),
                     label: {
-                            Image(systemName: "car")
-                            Text(vehicles[0].id)
-                                .font(.caption2)
+                        Image(systemName: "car")
+                        Text(vehicles[0].id)
+                            .font(.caption2)
                     })
                 .frame(width: watchGeo.size.width * 0.79, height: watchGeo.size.height * 0.14)
                 .padding()
@@ -70,6 +71,19 @@ struct ContentView: View {
                 default:
                     SubView(Text1: "Motor", Data1: "\(model.status.temperature_motor)°", Text2: "Batt", Data2: "\(model.status.temperature_battery)°", Text3: "PEM", Data3: "\(model.status.temperature_pem)°", Text4: "Amb", Data4: "\(model.status.temperature_ambient)°", Text5: "Cabin", Data5: "\(model.status.temperature_cabin)°", Text6: "12V", Data6: model.status.vehicle12v)
                 }
+            }
+        }
+        .onChange(of: scenePhase) { newPhase in
+            if newPhase == .inactive {
+                print("Inactive")
+            } else if newPhase == .active {
+                print("Active")
+                model.startBackgroundDownload(refreshInterval: 0)
+            } else if newPhase == .background {
+                print("Background")
+                let currentSOC = model.mode == .charging ? model.charge.soc : model.status.soc
+                print("Current SOC = \(currentSOC)")
+                updateComplications(soc: currentSOC)
             }
         }
     }

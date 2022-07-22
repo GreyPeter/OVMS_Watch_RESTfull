@@ -10,6 +10,7 @@ import SwiftUI
 @main
 struct OVMS_Watch_RESTfullApp: App {
     @StateObject private var model = ServerData.shared
+    @WKExtensionDelegateAdaptor private var extensionDelegate: ServerData
     var body: some Scene {
         WindowGroup {
             NavigationView {
