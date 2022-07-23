@@ -20,28 +20,22 @@ struct Vehicles: View {
         
         NavigationView {
             VStack {
+                List {
+                    ForEach(vehicles) { vehicle in
+                        HStack {
+                            Image(systemName: "car")
+                            Text(vehicle.id)
+                        }
+                    }
+                }
+                
                 Button(action: {
                     userName = userName
                     oldUsername = userName
                     password = keyChainService.retrievePassword(for: userName) ?? ""
                     isPresentingSettingsView = true
                 }) {
-                    Image(systemName: "gear")
-                    Text("Settings")
-                }
-                //.accessibilityLabel("New Vehicle")
-                
-                List(vehicles) { vehicle in
-                    HStack {
-                        Image(systemName: "car")
-                        Text(vehicle.id)
-                    }
-                }
-                Spacer()
-                Button("Delete Tokens") {
-                    Task {
-                        currentToken.delTokens()
-                    }
+                    Label("Settings", systemImage: "gear")
                 }
             }
             .sheet(isPresented: $isPresentingSettingsView) {
