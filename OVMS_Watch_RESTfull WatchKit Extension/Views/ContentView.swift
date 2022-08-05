@@ -35,7 +35,7 @@ struct ContentView: View {
                     } else {
                         model.mode = .charging
                     }
-                    model.startBackgroundDownload(refreshInterval: 0)
+                    model.startBackgroundDownload(refreshInterval: 5)
                 }
                 Image("battery_000")
                     .resizable()
@@ -78,12 +78,13 @@ struct ContentView: View {
                 print("Inactive")
             } else if newPhase == .active {
                 print("Active")
-                model.startBackgroundDownload(refreshInterval: 0)
+                //model.startBackgroundDownload(refreshInterval: 10)
             } else if newPhase == .background {
                 print("Background")
-                let currentSOC = model.mode == .charging ? model.charge.soc : model.status.soc
-                print("Current SOC = \(currentSOC)")
-                updateComplications(soc: currentSOC)
+                //let currentSOC = model.mode == .charging ? model.charge.soc : model.status.soc
+                //print("Current SOC = \(currentSOC)")
+                //updateComplications(soc: currentSOC)
+                updateActiveComplications()
             }
         }
     }

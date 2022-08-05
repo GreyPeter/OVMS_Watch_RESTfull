@@ -8,6 +8,8 @@
 import Foundation
 import ClockKit
 import WatchKit
+import SwiftUI
+import CommonCrypto
 
 enum Endpoint {
     static let identifierKey = "identifier"
@@ -72,11 +74,15 @@ enum Mode {
         }
     }
 }
-/*
-enum Mode: Int {
-    case driving = 1, charging, idle
-}
-*/
+
+enum DownloadStatus {
+    case notStarted
+    case queued
+    case inProgress(Double)
+    case completed
+    case failed(Error)
+  }
+
 public var lastSOC = 0
 var currentToken = Token.initial
 var vehicles = Vehicle.dummy
@@ -93,6 +99,12 @@ class ServerData: NSObject, ObservableObject {
     var location: Location = Location.dummy
     @Published var chargePercent: Double = Double(Charge.dummy.soc) ?? 0.0
     @Published var currMode: String = "I"
+    /// The current status of the session
+    private var downloadStatus = DownloadStatus.notStarted
+    private var backgroundTasks = [WKURLSessionRefreshBackgroundTask]()
+    private var sessionID: String {
+        "\(Bundle.main.bundleIdentifier!).background"
+      }
     
     var mode: Mode = .idle
     
@@ -104,39 +116,44 @@ class ServerData: NSObject, ObservableObject {
     var endpoint = Endpoint.charge
     var endpointToggle = false
     
+    var completionHandler : ((_ update: Bool) -> Void)?
+    
     private lazy var backgroundURLSession: URLSession = {
-        let config = URLSessionConfiguration.background(withIdentifier: "BackgroundData")
+        let config = URLSessionConfiguration.background(withIdentifier: sessionID)
         config.isDiscretionary = false
         config.sessionSendsLaunchEvents = true
         return URLSession(configuration: config, delegate: self, delegateQueue: nil)
     }()
     
     func startBackgroundDownload(refreshInterval: TimeInterval) {
-        backgroundDownload?.cancel()
-        //var endpoint: Endpoint
-        switch mode {
-        case .charging: endpoint = Endpoint.charge
-        case .driving: endpoint = endpointToggle == true ? Endpoint.location : Endpoint.status
-        default: endpoint = Endpoint.status
-        }
-        let now = Date()
-        let scheduledDate = now.addingTimeInterval(refreshInterval)
-        
-        if let url = URL(string: getURL(for: endpoint)!) {
-            let config = URLSessionConfiguration.background(withIdentifier: "\(Bundle.main.bundleIdentifier!).background")
-            config.isDiscretionary = false
-            config.sessionSendsLaunchEvents = true
-            if urlSession == nil {
-                urlSession = URLSession(configuration: config, delegate: self, delegateQueue: nil)
-            }
             
-            backgroundDownload = urlSession.downloadTask(with: url)
-            backgroundDownload?.earliestBeginDate = scheduledDate
-            print("Next download update = \(scheduledDate.formatted(date: .omitted, time: .standard))")
-            backgroundDownload?.resume()
-        }
+            switch mode {
+            case .charging: endpoint = Endpoint.charge
+            case .driving: endpoint = endpointToggle == true ? Endpoint.location : Endpoint.status
+            default: endpoint = Endpoint.status
+            }
+            let scheduledDate = Date().addingTimeInterval(refreshInterval)
+            
+            if let url = URL(string: getURL(for: endpoint)!) {
+                
+                let bgDload = backgroundURLSession.downloadTask(with: url)
+                bgDload.earliestBeginDate = scheduledDate
+                bgDload.countOfBytesClientExpectsToSend = 200
+                bgDload.countOfBytesClientExpectsToReceive = 1024
+                //BackgroundURLSessions.sharedInstance().sessions[sessionID] = self
+                
+                print("Next download update = \(scheduledDate.formatted(date: .omitted, time: .standard))")
+                bgDload.resume()
+                downloadStatus = .queued
+            }
     }
     
+    // Add the Background Refresh Task to the list so it can be set to
+    // completed when the URL task is done.
+    func addBackgroundRefreshTask(_ task: WKURLSessionRefreshBackgroundTask) {
+        backgroundTasks.append(task)
+    }
+
     func getVehicle() async {
         var request: URLRequest
         if let url = URL(string: getURL(for: Endpoint.vehicle)!) {
@@ -176,27 +193,63 @@ func getURL(for endpoint: Endpoint) -> String? {
     return urlComponents.url?.absoluteString
 }
 
+func updateActiveComplications() {
+    print("Updating Active Compications")
+    let complicationServer = CLKComplicationServer.sharedInstance()
+    if let activeComplications = complicationServer.activeComplications {
+        for complication in activeComplications {
+            complicationServer.reloadTimeline(for: complication)
+        }
+    }
+}
+
 func updateComplications(soc: String) {
     let currentSOC = Int(round(Double(soc) ?? 0))
     if currentSOC != lastSOC {
         lastSOC = currentSOC
-        print("SOC changed to \(lastSOC). Updating complications")
-        let server = CLKComplicationServer.sharedInstance()
-        server.activeComplications?.forEach { complication in
-            server.extendTimeline(for: complication)
+        print("SOC changed to \(lastSOC). Updating Active complications")
+        let complicationServer = CLKComplicationServer.sharedInstance()
+        if let activeComplications = complicationServer.activeComplications {
+            for complication in activeComplications {
+                complicationServer.reloadTimeline(for: complication)
+            }
         }
+        
     }
 }
 
 extension ServerData: URLSessionDownloadDelegate {
     
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo loc: URL) {
+
+        // We don't need more updates on this session, so let it go.
+        //BackgroundURLSessions.sharedInstance().sessions[sessionID] = nil
+        if loc.isFileURL {
+            do {
+                downloadData = try Data(contentsOf: loc)
+            } catch {
+                print("could not read data from \(loc)")
+            }
+        }
+        DispatchQueue.main.async { [self] in
+            saveDownloadedData(downloadData)
+            currMode = mode.identifier
+            self.downloadStatus = .completed
+        }
+        for task in backgroundTasks {
+            task.setTaskCompletedWithSnapshot(false)
+        }
+    }
+    
     func urlSession(_: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        
+        
         var time:Double = 0.0
         if error != nil {
             print("Download Error in task: \(task.taskIdentifier)")
-            task.cancel()
+            //task.cancel()
         } else {
-            task.cancel()
+            //task.cancel()
             endpointToggle = !endpointToggle
             switch mode {
             case .charging:
@@ -206,41 +259,42 @@ extension ServerData: URLSessionDownloadDelegate {
                 time = Double(150 / chargePower)
             case .driving:
                 /*
-                var locationPower = Int(round(Double(location.power) ?? 1.0))
-                if locationPower < 5 { locationPower = 5 } else if locationPower > 100 {locationPower = 100}
-                print("Location.power = \(locationPower)")
-                time = Double(150 / locationPower)
+                 var locationPower = Int(round(Double(location.power) ?? 1.0))
+                 if locationPower < 5 { locationPower = 5 } else if locationPower > 100 {locationPower = 100}
+                 print("Location.power = \(locationPower)")
+                 time = Double(150 / locationPower)
                  */
-                time = 30
+                time = 120
             default:
-                time = 3600.0
+                time = 15*60
             }
-            // Set refresh interval to 30 secs if not idle otherwise 1hr if Idle.
+            time = 15*60
             print("Task finished: \(task.taskIdentifier) - Refresh time = \(time)")
             startBackgroundDownload(refreshInterval: time)
         }
+        
+        print("Session didCompleteWithError \(error.debugDescription)")
+        DispatchQueue.main.async {
+            self.completionHandler?(error == nil)
+            self.completionHandler = nil
+        }
     }
     
-    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo loc: URL) {
+    private func saveDownloadedData(_ data: Data) {
+        // Move or quickly process this file before you return from this function.
+        // The file is in a temporary location and will be deleted.
         print("Download Finished")
-        if loc.isFileURL {
-            do {
-                downloadData = try Data(contentsOf: loc)
-            } catch {
-                print("could not read data from \(loc)")
-            }
-        }
         do {
             switch mode {
             case .charging:
                 charge = try JSONDecoder().decode(Charge.self, from: downloadData)
-                updateComplications(soc: charge.soc)
+                chargePercent = Double(charge.soc) ?? 0.0
                 if charge.charging == 0 {
                     mode = charge.caron == 0 ? .idle : .driving
                 }
             case .idle:
                 status = try JSONDecoder().decode(Status.self, from: downloadData)
-                updateComplications(soc: status.soc)
+                chargePercent = Double(status.soc) ?? 0.0
                 if status.charging != 0 {
                     mode = .charging
                 } else {
@@ -251,6 +305,7 @@ extension ServerData: URLSessionDownloadDelegate {
                     location = try JSONDecoder().decode(Location.self, from: downloadData)
                 } else {
                     status = try JSONDecoder().decode(Status.self, from: downloadData)
+                    chargePercent = Double(status.soc) ?? 0.0
                     if status.charging != 0 {
                         mode = .charging
                     } else {
@@ -258,62 +313,36 @@ extension ServerData: URLSessionDownloadDelegate {
                     }
                 }
             }
-            /*
-            if mode == .charging {
-                charge = try JSONDecoder().decode(Charge.self, from: downloadData)
-                updateComplications(soc: charge.soc)
-                if charge.charging == 0 {
-                    mode = charge.caron == 0 ? .idle : .driving
-                }
-            } else {
-                status = try JSONDecoder().decode(Status.self, from: downloadData)
-                updateComplications(soc: status.soc)
-                if status.charging != 0 {
-                    mode = .charging
-                } else {
-                    mode = status.caron == 0 ? .idle : .driving
-                }
-            } */
+            updateActiveComplications()
+            print("Mode: \(currMode) SOC:\(charge.soc)/ \(status.soc) @ \(Date.now.formatted(date: .omitted, time: .standard)) Charge:\(charge.chargestate)/\(status.chargestate) Car:\(charge.caron == 0 ? "OFF" : "ON")/\(status.caron == 0 ? "OFF" : "ON")")
         }
         catch {
-            print("Error converting server response to json")
-            print("Endpoint = \(endpoint) Mode = \(mode)")
+            print("Error converting server response to json - Endpoint = \(endpoint) Mode = \(mode)")
         }
-        DispatchQueue.main.async { [self] in
-            currMode = mode.identifier
-            /*
-            switch mode {
-            case .charging:
-                currMode = "C"
-            case .driving:
-                currMode = "D"
-            default:
-                currMode = "I"
-            }
-             */
-            chargePercent = Double(charge.soc) ?? 0.0
-        }
-        print("Mode: \(currMode) SOC:\(charge.soc)/ \(status.soc) @ \(Date.now.formatted(date: .omitted, time: .standard)) Charge:\(charge.chargestate)/\(status.chargestate) Car:\(charge.caron == 0 ? "OFF" : "ON")/\(status.caron == 0 ? "OFF" : "ON")")
     }
+    
+    func refresh(_ completionHandler: @escaping (_ update: Bool) -> Void) {
+        self.completionHandler = completionHandler
+    }
+
 }
 
 extension ServerData: WKExtensionDelegate {
-    
     func applicationDidFinishLaunching() {
         // Perform any final initialization of your application.
-        print("Finished Launching")
+        //print("Finished Launching")
     }
     
     func applicationDidBecomeActive() {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-        print("Became Active")
+        //print("Became Active")
         //startBackgroundTask(refreshInterval: 10)
     }
     
     func applicationWillResignActive() {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, etc.
-        print("Resign Active")
+        //print("Resign Active")
     }
     
     func handle(_ backgroundTasks: Set<WKRefreshBackgroundTask>) {
@@ -322,25 +351,27 @@ extension ServerData: WKExtensionDelegate {
             // Use a switch statement to check the task type
             switch task {
             case let urlBackgroundTask as WKURLSessionRefreshBackgroundTask:
-                print("application task received, start URL session")
-                currMode = mode.identifier
-                /*
-                switch mode {
-                case .charging:
-                    currMode = "C"
-                case .driving:
-                    currMode = "D"
-                default:
-                    currMode = "I"
+                print("WKURLSessionRefreshBackgroundTask task received")
+                refresh() { (update: Bool) -> Void in
+                    if update {
+                        print("Updating complications")
+                        updateActiveComplications()
+                    }
                 }
-                 */
+                currMode = mode.identifier
                 chargePercent = Double(charge.soc) ?? 0.0
-                //let backgroundConfigObject = URLSessionConfiguration.background(withIdentifier: urlBackgroundTask.sessionIdentifier)
-                //let backgroundUrlSession = URLSession(configuration: backgroundConfigObject, delegate: self, delegateQueue: nil) //set to nil in task:didCompleteWithError: delegate method
-                //let pendingBackgroundURLTask = urlBackgroundTask //Saved for .setTaskComplete() in downloadTask:didFinishDownloadingTo location: (or if error non nil in task:didCompleteWithError:)
+                updateActiveComplications()
+                //self.addBackgroundRefreshTask(urlBackgroundTask)
                 urlBackgroundTask.setTaskCompletedWithSnapshot(false)
             case let snapshotTask as WKSnapshotRefreshBackgroundTask:
                 // Snapshot tasks have a unique completion call, make sure to set your expiration date
+                print("WKSnapshotRefreshBackgroundTask task received")
+                refresh() { (update: Bool) -> Void in
+                    if update {
+                        print("Updating complications")
+                        updateActiveComplications()
+                    }
+                }
                 snapshotTask.setTaskCompleted(restoredDefaultState: true, estimatedSnapshotExpiration: Date.distantFuture, userInfo: nil)
             case let backgroundTask as WKApplicationRefreshBackgroundTask:
                 // Be sure to complete the background task once you’re done.
